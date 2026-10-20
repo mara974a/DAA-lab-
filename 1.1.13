@@ -1,0 +1,74 @@
+#include <stdio.h>
+
+#define MAX 15
+#define INF 1000000000
+
+int n;
+int cost[MAX][MAX];
+int dp[MAX][1 << MAX];
+
+int tsp(int city, int mask)
+{
+    // All cities have been visited
+    if (mask == (1 << n) - 1)
+    {
+        // Return to starting city (city 0)
+        if (cost[city][0] != -1)
+            return cost[city][0];
+
+        return INF;
+    }
+
+    if (dp[city][mask] != -1)
+        return dp[city][mask];
+
+    int ans = INF;
+
+    for (int next = 0; next < n; next++)
+    {
+        // If city is not visited and connection exists
+        if (!(mask & (1 << next)) && cost[city][next] != -1)
+        {
+            int newCost = cost[city][next] +
+                          tsp(next, mask | (1 << next));
+
+            if (newCost < ans)
+                ans = newCost;
+        }
+    }
+
+    return dp[city][mask] = ans;
+}
+
+int main()
+{
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            scanf("%d", &cost[i][j]);
+        }
+    }
+
+    // Initialize DP table
+    for (int i = 0; i < n; i++)
+    {
+        for (int mask = 0; mask < (1 << n); mask++)
+        {
+            dp[i][mask] = -1;
+        }
+    }
+
+    // Start from city 0
+    int result = tsp(0, 1);
+
+    if (result >= INF)
+        printf("-1\n");
+    else
+        printf("%d\n", result);
+
+    return 0;
+}
+
